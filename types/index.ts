@@ -12,6 +12,8 @@ export interface CalendarEvent {
   title: string;
   notes?: string;
   color?: string; // hex or preset name
+  category?: string;
+  isDeadline?: boolean;
 }
 
 export interface MemoryBoxData {
@@ -28,6 +30,9 @@ export interface TimetableItem {
   endTime: string;   // e.g. "11:00"
   isRecurring: boolean; // true = permanent template, false = this week only
   color?: string;
+  weekStartDate?: string; // YYYY-MM-DD of Monday for this specific week (if isRecurring is false)
+  location?: string;
+  description?: string;
 }
 
 export interface BrainDumpData {

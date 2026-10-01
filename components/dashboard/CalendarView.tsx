@@ -28,7 +28,7 @@ const PRESET_COLORS = [
   { name: "Sea Glass", hex: "#68B2A0" },
   { name: "Ocean Blue", hex: "#468189" },
   { name: "Sky", hex: "#62929E" },
-  { name: "Coral", hex: "#C77D74" },
+  { name: "Coral (Son Tarih)", hex: "#C77D74" },
 ];
 
 export default function CalendarView({
@@ -46,6 +46,7 @@ export default function CalendarView({
   const [newEventNotes, setNewEventNotes] = useState("");
   const [newEventDate, setNewEventDate] = useState(format(selectedDate, "yyyy-MM-dd"));
   const [newEventColor, setNewEventColor] = useState(PRESET_COLORS[0].hex);
+  const [newEventIsDeadline, setNewEventIsDeadline] = useState(false);
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
@@ -81,11 +82,14 @@ export default function CalendarView({
       title: newEventTitle.trim(),
       notes: newEventNotes.trim() || undefined,
       date: newEventDate,
-      color: newEventColor,
+      color: newEventIsDeadline ? (newEventColor === PRESET_COLORS[0].hex ? "#C77D74" : newEventColor) : newEventColor,
+      isDeadline: newEventIsDeadline,
+      category: newEventIsDeadline ? "deadline" : "general",
     });
 
     setNewEventTitle("");
     setNewEventNotes("");
+    setNewEventIsDeadline(false);
     setIsAddModalOpen(false);
   };
 
@@ -108,7 +112,7 @@ export default function CalendarView({
 
   return (
     <div className="relative pt-3 w-full">
-      {/* Authentic Desk Calendar Spiral Rings at Top Edge */}
+      {/* Desk Calendar Spiral Rings at Top Edge */}
       <div className="absolute top-0 left-0 right-0 flex justify-evenly px-4 z-20 pointer-events-none">
         {Array.from({ length: spiralCount }).map((_, i) => (
           <div key={`spiral-${i}`} className="flex flex-col items-center">
@@ -120,7 +124,7 @@ export default function CalendarView({
         ))}
       </div>
 
-      {/* Desk Calendar Body: Sharp crisp rectangle */}
+      {/* Desk Calendar Body */}
       <div className="relative bg-[#FFFFFF] border-2 border-[#BCD8DB] shadow-md w-full pt-4 sm:pt-5 p-3 sm:p-4 text-[#243336]">
         {/* Top Header Strip inside calendar */}
         <div className="flex items-center justify-between gap-1 pb-2 mb-2 border-b-2 border-[#D6EAEC]">
@@ -135,7 +139,7 @@ export default function CalendarView({
                 setIsAddModalOpen(true);
               }}
               className="p-1 text-[#3D7F86] hover:bg-[#E8F4F5] transition-colors cursor-pointer"
-              title="Yeni Anımsatıcı Ekle"
+              title="Yeni Anımsatıcı / Son Tarih Ekle"
             >
               <Plus className="w-3.5 h-3.5" />
             </button>
@@ -158,39 +162,41 @@ export default function CalendarView({
           </div>
         </div>
 
-        {/* Weekday Row */}
-        <div className="grid grid-cols-7 text-center text-[10px] sm:text-[11px] font-semibold text-[#5B888D] mb-1.5 uppercase tracking-wider border-b border-[#EAF3F4] pb-1">
+        {/* Days of week header */}
+        <div className="grid grid-cols-7 text-center font-serif text-[10px] sm:text-[11px] font-bold text-[#4B7579] border-b border-[#D6EAEC] pb-1 mb-1">
           <span>Pt</span>
           <span>Sa</span>
           <span>Ça</span>
           <span>Pe</span>
           <span>Cu</span>
-          <span>Ct</span>
-          <span>Pz</span>
+          <span className="text-[#B56D76]">Ct</span>
+          <span className="text-[#B56D76]">Pz</span>
         </div>
 
-        {/* Days Grid - Sharp desk calendar cells */}
-        <div className="grid grid-cols-7 gap-1 text-center">
-          {Array.from({ length: startDayIndex }).map((_, i) => (
-            <div key={`pad-${i}`} className="h-6 sm:h-7" />
+        {/* Month Dates Grid */}
+        <div className="grid grid-cols-7 gap-y-1 text-center text-xs">
+          {/* Empty cells before start of month */}
+          {Array.from({ length: startDayIndex }).map((_, index) => (
+            <div key={`empty-${index}`} className="h-6 sm:h-7" />
           ))}
 
+          {/* Actual days */}
           {daysInMonth.map((day) => {
-            const isTodayDate = isToday(day);
-            const isSelected = isSameDay(day, selectedDate);
             const dayEvents = getEventsForDay(day);
             const hasEvents = dayEvents.length > 0;
+            const hasDeadline = dayEvents.some((e) => e.isDeadline || e.category === "deadline");
+            const isSelected = isSameDay(day, selectedDate);
+            const isCurrentDay = isToday(day);
 
             return (
               <button
                 key={day.toISOString()}
-                type="button"
                 onClick={() => handleDayClick(day)}
-                className={`relative h-6 sm:h-7 w-full flex flex-col items-center justify-center text-[10px] sm:text-[11px] transition-all p-0 border ${
+                className={`h-6 sm:h-7 w-full flex flex-col items-center justify-center relative border transition-all text-[11px] sm:text-xs ${
                   isSelected
-                    ? "bg-[#2A5E64] text-white font-semibold border-[#2A5E64] shadow-xs"
-                    : isTodayDate
-                    ? "bg-[#E6F5F6] text-[#1E565C] font-bold border-[#7CC0C6]"
+                    ? "border-[#2A5E64] bg-[#2A5E64] text-white font-bold shadow-xs scale-105 z-10"
+                    : isCurrentDay
+                    ? "border-[#3F8890] bg-[#E3F2F4] text-[#194044] font-semibold"
                     : hasEvents
                     ? "border-[#BFE0E3] bg-[#F7FCFC] text-[#1E4549] font-medium hover:bg-[#EDF7F8] cursor-pointer"
                     : "border-transparent text-[#3A5659] hover:bg-[#F2F8F9] cursor-default"
@@ -198,13 +204,15 @@ export default function CalendarView({
               >
                 <span className="leading-none">{format(day, "d")}</span>
 
-                {/* Dot for reminders */}
+                {/* Dot for reminders / deadlines */}
                 {hasEvents && (
                   <span
                     className="w-1.5 h-1.5 rounded-full mt-0.5"
                     style={{
                       backgroundColor: isSelected
                         ? "#A5E7EC"
+                        : hasDeadline
+                        ? "#C77D74"
                         : dayEvents[0]?.color || "#3F8890",
                     }}
                   />
@@ -252,7 +260,14 @@ export default function CalendarView({
                       style={{ backgroundColor: ev.color || "#489DA5" }}
                     />
                     <div>
-                      <p className="font-medium text-[#243336] text-xs">{ev.title}</p>
+                      <div className="flex items-center gap-1.5">
+                        <p className="font-medium text-[#243336] text-xs">{ev.title}</p>
+                        {ev.isDeadline && (
+                          <span className="text-[9px] font-bold text-[#8C3D34] bg-[#FCECE9] px-1 py-0.2 rounded-xs">
+                            Son Tarih
+                          </span>
+                        )}
+                      </div>
                       {ev.notes && (
                         <p className="text-[11px] text-[#638487] mt-0.5 leading-snug">
                           {ev.notes}
@@ -295,7 +310,7 @@ export default function CalendarView({
               <div className="flex items-center gap-1.5">
                 <Tag className="w-4 h-4 text-[#3F8890]" />
                 <h3 className="font-serif-title text-base font-medium text-[#243336]">
-                  Yeni Anımsatıcı
+                  Yeni Anımsatıcı / Son Tarih
                 </h3>
               </div>
               <button
@@ -307,12 +322,44 @@ export default function CalendarView({
             </div>
 
             <form onSubmit={handleSubmitNewEvent} className="space-y-2.5 text-xs">
+              {/* Kategori Seçimi */}
+              <div>
+                <label className="block text-[#476C70] font-medium mb-1">Kategori</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setNewEventIsDeadline(false)}
+                    className={`py-1.5 px-2 text-xs font-medium border text-center transition-all cursor-pointer ${
+                      !newEventIsDeadline
+                        ? "bg-[#E6F3F4] border-[#3D7F86] text-[#1E4B50] font-semibold"
+                        : "bg-[#F7FCFC] border-[#D1E6E8] text-[#638487] hover:bg-[#EEF7F8]"
+                    }`}
+                  >
+                    📌 Anımsatıcı
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNewEventIsDeadline(true);
+                      setNewEventColor("#C77D74");
+                    }}
+                    className={`py-1.5 px-2 text-xs font-medium border text-center transition-all cursor-pointer ${
+                      newEventIsDeadline
+                        ? "bg-[#FDF2F0] border-[#C77D74] text-[#8C3D34] font-semibold ring-1 ring-[#C77D74]"
+                        : "bg-[#F7FCFC] border-[#D1E6E8] text-[#638487] hover:bg-[#FDF3F2]"
+                    }`}
+                  >
+                    ⏳ Son Tarih
+                  </button>
+                </div>
+              </div>
+
               <div>
                 <label className="block text-[#476C70] font-medium mb-1">Başlık</label>
                 <input
                   type="text"
                   required
-                  placeholder="Etkinlik..."
+                  placeholder={newEventIsDeadline ? "Örn: Staj / Burs Başvurusu..." : "Etkinlik..."}
                   value={newEventTitle}
                   onChange={(e) => setNewEventTitle(e.target.value)}
                   className="w-full px-2.5 py-1.5 border border-[#B8D7DA] bg-[#F7FCFC] text-[#243336] text-xs focus:outline-none focus:border-[#489DA5]"
@@ -320,7 +367,9 @@ export default function CalendarView({
               </div>
 
               <div>
-                <label className="block text-[#476C70] font-medium mb-1">Tarih</label>
+                <label className="block text-[#476C70] font-medium mb-1">
+                  {newEventIsDeadline ? "Son Başvuru Tarihi" : "Tarih"}
+                </label>
                 <input
                   type="date"
                   required
@@ -340,22 +389,24 @@ export default function CalendarView({
                 />
               </div>
 
-              <div>
-                <label className="block text-[#476C70] font-medium mb-1">Renk</label>
-                <div className="flex items-center gap-1.5">
-                  {PRESET_COLORS.map((color) => (
-                    <button
-                      key={color.hex}
-                      type="button"
-                      onClick={() => setNewEventColor(color.hex)}
-                      className={`w-4 h-4 rounded-full transition-transform ${
-                        newEventColor === color.hex ? "scale-125 ring-2 ring-offset-1 ring-[#2A5E64]" : ""
-                      }`}
-                      style={{ backgroundColor: color.hex }}
-                    />
-                  ))}
+              {!newEventIsDeadline && (
+                <div>
+                  <label className="block text-[#476C70] font-medium mb-1">Renk</label>
+                  <div className="flex items-center gap-1.5">
+                    {PRESET_COLORS.map((color) => (
+                      <button
+                        key={color.hex}
+                        type="button"
+                        onClick={() => setNewEventColor(color.hex)}
+                        className={`w-4 h-4 rounded-full transition-transform ${
+                          newEventColor === color.hex ? "scale-125 ring-2 ring-offset-1 ring-[#2A5E64]" : ""
+                        }`}
+                        style={{ backgroundColor: color.hex }}
+                      />
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div className="pt-2 flex items-center justify-end gap-2 border-t border-[#E8F2F4]">
                 <button

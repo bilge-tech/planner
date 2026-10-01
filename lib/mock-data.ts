@@ -11,9 +11,11 @@ export const INITIAL_CALENDAR_EVENTS: CalendarEvent[] = [
   {
     id: "cal-2",
     date: new Date(Date.now() + 86400000 * 2).toISOString().split("T")[0],
-    title: "Staj / Proje Başvurusu",
+    title: "Yaz Stajı Başvurusu",
     notes: "Portfolyo ve CV güncellenip PDF formatında gönderilecek.",
-    color: "#6E8B74",
+    color: "#C77D74",
+    isDeadline: true,
+    category: "deadline",
   },
   {
     id: "cal-3",
@@ -23,11 +25,38 @@ export const INITIAL_CALENDAR_EVENTS: CalendarEvent[] = [
     color: "#B8860B",
   },
   {
+    id: "cal-deadline-2",
+    date: new Date(Date.now() + 86400000 * 7).toISOString().split("T")[0],
+    title: "TÜBİTAK Proje Raporu Teslimi",
+    notes: "Sistem üzerinden son yükleme günü.",
+    color: "#C77D74",
+    isDeadline: true,
+    category: "deadline",
+  },
+  {
     id: "cal-4",
     date: new Date(Date.now() + 86400000 * 12).toISOString().split("T")[0],
     title: "İspanyolca Seviye Tespit Sınavı",
     notes: "A2 kelime kartlarını tekrar et.",
     color: "#7E7398",
+  },
+  {
+    id: "cal-deadline-3",
+    date: new Date(Date.now() + 86400000 * 15).toISOString().split("T")[0],
+    title: "Erasmus Dil Belgesi Yükleme",
+    notes: "Öğrenci işleri portalı son tarih.",
+    color: "#C77D74",
+    isDeadline: true,
+    category: "deadline",
+  },
+  {
+    id: "cal-deadline-4",
+    date: new Date(Date.now() + 86400000 * 22).toISOString().split("T")[0],
+    title: "Yurt Dışı Yüksek Lisans Başvurusu",
+    notes: "Niyet mektubu ve transkript.",
+    color: "#C77D74",
+    isDeadline: true,
+    category: "deadline",
   },
 ];
 
@@ -84,6 +113,8 @@ export const INITIAL_TIMETABLE: TimetableItem[] = [
     endTime: "11:00",
     isRecurring: true,
     color: "#E8C5C8",
+    location: "Atölye 302",
+    description: "Dergi mizanpajı ve font eşleştirmeleri",
   },
   {
     id: "time-2",
@@ -93,6 +124,8 @@ export const INITIAL_TIMETABLE: TimetableItem[] = [
     endTime: "15:00",
     isRecurring: true,
     color: "#CBDCEB",
+    location: "Lab B",
+    description: "İlişkisel veritabanı şeması ve indeksleme",
   },
   {
     id: "time-3",
@@ -102,15 +135,19 @@ export const INITIAL_TIMETABLE: TimetableItem[] = [
     endTime: "12:00",
     isRecurring: true,
     color: "#C5D5C5",
+    location: "Amfi 1",
+    description: "Sprint planlaması ve mimari inceleme",
   },
   {
     id: "time-4",
     title: "Proje Ekibi Sync Toplantısı",
     dayOfWeek: 3, // Çarşamba
     startTime: "15:00",
-    endTime: "16:00",
+    endTime: "16:30",
     isRecurring: false,
     color: "#E8C98F",
+    location: "Google Meet",
+    description: "Haftalık durum değerlendirmesi ve tasarım revizyonları",
   },
   {
     id: "time-5",
@@ -120,6 +157,8 @@ export const INITIAL_TIMETABLE: TimetableItem[] = [
     endTime: "13:00",
     isRecurring: true,
     color: "#D9CEE8",
+    location: "Derslik 104",
+    description: "Dinamik programlama ve graf algoritmaları",
   },
   {
     id: "time-6",
@@ -129,6 +168,8 @@ export const INITIAL_TIMETABLE: TimetableItem[] = [
     endTime: "15:00",
     isRecurring: false,
     color: "#F2D4C2",
+    location: "Bölüm Başkanlığı",
+    description: "Tez konusu ve dönem projesi onayı",
   },
 ];
 

@@ -4,6 +4,8 @@ import React, { useRef } from "react";
 import { Camera, Sparkles } from "lucide-react";
 import { MemoryBoxData } from "@/types";
 
+import { format } from "date-fns";
+
 interface PolaroidMemoryBoxProps {
   memoryData?: MemoryBoxData;
   selectedDate: Date;
@@ -17,7 +19,7 @@ export default function PolaroidMemoryBox({
 }: PolaroidMemoryBoxProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const dateStr = selectedDate.toISOString().split("T")[0];
+  const dateStr = format(selectedDate, "yyyy-MM-dd");
 
   const currentImage =
     memoryData?.imageUrl ||
@@ -28,10 +30,32 @@ export default function PolaroidMemoryBox({
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        onUpdateMemory({
-          date: dateStr,
-          imageUrl: reader.result as string,
-        });
+        const img = new Image();
+        img.onload = () => {
+          const maxDim = 800;
+          let w = img.width;
+          let h = img.height;
+          if (w > maxDim || h > maxDim) {
+            if (w > h) {
+              h = Math.round((h * maxDim) / w);
+              w = maxDim;
+            } else {
+              w = Math.round((w * maxDim) / h);
+              h = maxDim;
+            }
+          }
+          const canvas = document.createElement("canvas");
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext("2d");
+          ctx?.drawImage(img, 0, 0, w, h);
+          const compressedDataUrl = canvas.toDataURL("image/jpeg", 0.82);
+          onUpdateMemory({
+            date: dateStr,
+            imageUrl: compressedDataUrl,
+          });
+        };
+        img.src = reader.result as string;
       };
       reader.readAsDataURL(file);
     }
